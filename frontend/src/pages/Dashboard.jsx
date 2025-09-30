@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { streamAPI } from '../utils/api';
 import { useWebRTC } from '../hooks/useWebRTC';
+import Chat from '../components/Chat';
 import { 
   Video, 
   Play, 
@@ -406,6 +407,19 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Streamer Chat (hiển thị khi có stream đang LIVE) */}
+      {streams.some(s => s.isLive) && (
+        <div className="bg-white rounded-lg shadow-sm mb-8">
+          <div className="p-6 border-b">
+            <h2 className="text-xl font-semibold text-gray-900">Chat</h2>
+            <p className="text-gray-600 text-sm">Tin nhắn từ viewers cho stream hiện tại</p>
+          </div>
+          <div className="p-6">
+            <Chat streamId={streams.find(s => s.isLive)?.id} user={user} />
+          </div>
+        </div>
+      )}
 
       {/* Streams List */}
       <div className="bg-white rounded-lg shadow-sm">
