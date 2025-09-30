@@ -110,11 +110,8 @@ const Stream = () => {
   };
 
   const toggleMute = () => {
-    if (mediaStream) {
-      const audioTracks = mediaStream.getAudioTracks();
-      audioTracks.forEach(track => {
-        track.enabled = isMuted;
-      });
+    if (remoteVideoRef.current) {
+      remoteVideoRef.current.muted = !isMuted;
       setIsMuted(!isMuted);
     }
   };
@@ -169,6 +166,7 @@ const Stream = () => {
                 ref={remoteVideoRef}
                 autoPlay
                 playsInline
+                muted
                 className="w-full h-full object-cover"
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}
