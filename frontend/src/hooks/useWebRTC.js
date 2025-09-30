@@ -152,6 +152,31 @@ export const useWebRTC = () => {
         console.warn('localVideoRef is null');
       }
 
+      // Khởi tạo PeerConnection cho streamer và add tracks ngay
+      if (!peerConnectionRef.current) {
+        peerConnectionRef.current = new RTCPeerConnection(rtcConfig);
+        // Gửi ICE từ streamer về viewer
+        peerConnectionRef.current.onicecandidate = (event) => {
+          if (event.candidate && socket) {
+            socket.emit('webrtc-ice-candidate', {
+              streamId,
+              candidate: event.candidate,
+              role: 'streamer'
+            });
+          }
+        };
+      }
+
+      const pc = peerConnectionRef.current;
+      if (pc && mediaStream) {
+        const existingTracks = pc.getSenders().map(s => s.track).filter(Boolean);
+        mediaStream.getTracks().forEach((track) => {
+          if (!existingTracks.includes(track)) {
+            pc.addTrack(track, mediaStream);
+          }
+        });
+      }
+
       // Join phòng signaling theo streamId và gắn handler answer/ICE
       if (socket) {
         socket.emit('join-stream', streamId);
