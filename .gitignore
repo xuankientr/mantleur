@@ -74,7 +74,10 @@ jspm_packages/
 
 # Gatsby files
 .cache/
+# Ignore public ở root nếu có, nhưng cho phép theo dõi assets của frontend
 public
+!frontend/public/
+!frontend/public/**
 
 # Storybook build outputs
 .out
@@ -99,6 +102,7 @@ temp/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
 
 
 
