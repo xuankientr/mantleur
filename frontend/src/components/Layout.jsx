@@ -41,10 +41,8 @@ const Layout = () => {
             {/* Logo */}
             <div className="flex items-center">
               <Link to="/" className="flex items-center space-x-3 group">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105">
-                  <Video className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-2xl font-bold text-gradient">MantleUR</span>
+                <img src="/logo.png" alt="Mantle Ủ" className="w-10 h-10 rounded-xl shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105" />
+                <span className="text-2xl font-bold text-gradient">Mantle Ủ</span>
               </Link>
             </div>
 
@@ -238,7 +236,7 @@ const Layout = () => {
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section">
-            <h3 className="footer-title">MantleUR</h3>
+            <h3 className="footer-title">Mantle Ủ</h3>
             <p className="text-slate-400 text-sm">
               Nền tảng livestream thế hệ mới với công nghệ WebRTC tiên tiến.
             </p>
@@ -269,9 +267,7 @@ const Layout = () => {
           </div>
         </div>
         <div className="container-modern border-t border-slate-800 pt-8 mt-8">
-          <p className="text-center text-slate-400 text-sm">
-            © 2024 MantleUR. Tất cả quyền được bảo lưu.
-          </p>
+          <p className="text-center text-slate-400 text-sm">© 2024 Mantle Ủ. Tất cả quyền được bảo lưu.</p>
         </div>
       </footer>
     </div>
