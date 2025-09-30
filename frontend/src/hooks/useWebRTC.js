@@ -11,6 +11,7 @@ export const useWebRTC = () => {
   const remoteVideoRef = useRef(null);
   const peerConnectionRef = useRef(null); // RTCPeerConnection
   const currentStreamIdRef = useRef(null);
+  const pendingIceCandidatesRef = useRef([]); // Buffer ICE trước khi có remoteDescription
 
   const turnUrl = import.meta.env.VITE_TURN_URL;
   const turnUsername = import.meta.env.VITE_TURN_USERNAME;
@@ -245,6 +246,17 @@ export const useWebRTC = () => {
       const pc = new RTCPeerConnection(rtcConfig);
       peerConnectionRef.current = pc;
 
+      // Theo dõi trạng thái kết nối để cập nhật UI
+      pc.onconnectionstatechange = () => {
+        const state = pc.connectionState;
+        console.log('PC connectionState:', state);
+        if (state === 'connected') {
+          setIsConnected(true);
+        } else if (state === 'failed' || state === 'disconnected') {
+          setIsConnected(false);
+        }
+      };
+
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           socket.emit('webrtc-ice-candidate', {
@@ -280,6 +292,19 @@ export const useWebRTC = () => {
           }
           await pc.setRemoteDescription({ type: 'answer', sdp: data.sdp });
           console.log('Viewer set remote description (answer)');
+
+          // Sau khi có remoteDescription, add các ICE đã buffer
+          if (pendingIceCandidatesRef.current.length) {
+            console.log('Adding buffered ICE candidates:', pendingIceCandidatesRef.current.length);
+            for (const candidate of pendingIceCandidatesRef.current) {
+              try {
+                await pc.addIceCandidate(new RTCIceCandidate(candidate));
+              } catch (e) {
+                console.error('Failed to add buffered ICE:', e);
+              }
+            }
+            pendingIceCandidatesRef.current = [];
+          }
         } catch (err) {
           console.error('Viewer setRemoteDescription failed:', err);
         }
@@ -291,9 +316,9 @@ export const useWebRTC = () => {
         try {
           if (!data || data.streamId !== streamId) return;
           if (!data.candidate) return;
-          // Chỉ add ICE khi đã có remote description hoặc đang có local offer
-          if (!pc.remoteDescription && pc.signalingState === 'stable') {
-            console.warn('Skip ICE: no remoteDescription in stable state');
+          // Nếu chưa có remoteDescription thì buffer lại
+          if (!pc.remoteDescription) {
+            pendingIceCandidatesRef.current.push(data.candidate);
             return;
           }
           await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
