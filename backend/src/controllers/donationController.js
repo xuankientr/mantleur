@@ -84,6 +84,30 @@ const createDonation = async (req, res) => {
       return { donation, updatedDonor };
     });
 
+    // Emit realtime events to stream room
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        const room = `stream-${streamId}`;
+        io.to(room).emit('donation', {
+          id: result.donation.id,
+          amount: result.donation.amount,
+          message: result.donation.message,
+          donor: result.donation.donor,
+          stream: result.donation.stream,
+          createdAt: new Date().toISOString()
+        });
+        // Update balances for donor/streamer (client-side can refresh)
+        io.to(room).emit('donation-balance-update', {
+          donorId,
+          streamerId: stream.streamerId,
+          amount
+        });
+      }
+    } catch (e) {
+      console.warn('Socket emit donation failed:', e?.message || e);
+    }
+
     res.status(201).json({
       message: 'Donation created successfully',
       donation: result.donation,
@@ -204,6 +228,7 @@ module.exports = {
   getReceivedDonations,
   getStreamDonations
 };
+
 
 
 

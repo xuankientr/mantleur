@@ -20,9 +20,23 @@ const Chat = ({ streamId, user }) => {
         setMessages(prev => [...prev, message]);
       });
 
+      // Listen for donation events
+      socket.on('donation', (payload) => {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: `donation-${Date.now()}`,
+            message: `🎁 ${payload.donor?.username || 'Ẩn danh'} đã donate ${payload.amount} coin: ${payload.message || ''}`.trim(),
+            username: 'SYSTEM',
+            timestamp: new Date().toISOString()
+          }
+        ]);
+      });
+
       return () => {
         socket.emit('leave-stream', streamId);
         socket.off('chat-message');
+        socket.off('donation');
       };
     }
   }, [socket, streamId]);

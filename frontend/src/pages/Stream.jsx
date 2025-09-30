@@ -95,13 +95,21 @@ const Stream = () => {
     }
 
     try {
-      await donationAPI.createDonation({
+      const resp = await donationAPI.createDonation({
         streamId,
         amount: donationAmount,
         message: donationMessage,
       });
       
       alert('Donate thành công!');
+      // Cập nhật số coin người dùng ngay lập tức
+      if (resp?.data?.newBalance !== undefined) {
+        // Cập nhật vào AuthContext và localStorage
+        try {
+          const updatedUser = { ...(user || {}), coinBalance: resp.data.newBalance };
+          localStorage.setItem('user', JSON.stringify(updatedUser));
+        } catch {}
+      }
       setDonationMessage('');
     } catch (err) {
       console.error('Donation error:', err);

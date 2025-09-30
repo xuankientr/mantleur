@@ -25,6 +25,9 @@ const io = new Server(server, {
   }
 });
 
+// Expose io instance to routes/controllers
+app.set('io', io);
+
 // Middleware
 app.use(helmet());
 app.use(morgan('combined'));
