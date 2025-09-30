@@ -72,15 +72,14 @@ const Home = () => {
   return (
     <div className="space-y-16">
       {/* Hero Section */}
-      <section className="hero-section">
+      <section className="bg-slate-950">
         <div className="container-modern py-20">
           <div className="hero-content">
             <h1 className="hero-title">
-              Chào mừng đến với{' '}
-              <span className="text-gradient">MantleUR</span>
+              Khám phá livestream trên <span className="text-white font-bold">Mantle UR</span>
             </h1>
-            <p className="hero-subtitle">
-              Nền tảng livestream thế hệ mới với công nghệ WebRTC tiên tiến
+            <p className="text-slate-400 max-w-2xl mx-auto">
+              Nơi bạn xem và kết nối với các streamer yêu thích. Giải trí mỗi ngày.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register" className="btn btn-primary btn-lg">
@@ -96,30 +95,30 @@ const Home = () => {
             {/* Hero Features */}
             <div className="hero-features mt-12">
               <div className="hero-feature">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Video className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center">
+                  <Video className="w-6 h-6 text-slate-100" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold">WebRTC</h3>
-                  <p className="text-sm opacity-80">Công nghệ streaming tiên tiến</p>
+                  <h3 className="font-semibold text-slate-100">Livestream mượt</h3>
+                  <p className="text-sm text-slate-400">Trải nghiệm ổn định, ít độ trễ</p>
                 </div>
               </div>
               <div className="hero-feature">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center">
+                  <Users className="w-6 h-6 text-slate-100" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold">Cộng đồng</h3>
-                  <p className="text-sm opacity-80">Kết nối với hàng nghìn người</p>
+                  <h3 className="font-semibold text-slate-100">Cộng đồng</h3>
+                  <p className="text-sm text-slate-400">Kết nối với hàng nghìn người</p>
                 </div>
               </div>
               <div className="hero-feature">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Heart className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 bg-slate-800 rounded-xl flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-slate-100" />
                 </div>
                 <div className="text-left">
-                  <h3 className="font-semibold">Donation</h3>
-                  <p className="text-sm opacity-80">Hỗ trợ streamer yêu thích</p>
+                  <h3 className="font-semibold text-slate-100">Donation</h3>
+                  <p className="text-sm text-slate-400">Hỗ trợ streamer yêu thích</p>
                 </div>
               </div>
             </div>
@@ -137,7 +136,7 @@ const Home = () => {
               className={`px-6 py-3 rounded-full font-medium transition-all duration-200 ${
                 category === cat
                   ? 'bg-blue-600 text-white shadow-lg'
-                  : 'bg-white text-slate-600 border border-slate-200 hover:border-blue-300 hover:text-blue-600'
+                  : 'bg-slate-800 text-slate-300 border border-slate-700 hover:border-blue-400 hover:text-white'
               }`}
             >
               {cat}
@@ -149,24 +148,24 @@ const Home = () => {
       {/* Live Streams Section */}
       <section className="container-modern">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">
-            <Video className="w-8 h-8 inline-block mr-3 text-blue-600" />
+          <h2 className="text-3xl font-bold text-slate-100 mb-4">
+            <Video className="w-8 h-8 inline-block mr-3 text-blue-400" />
             Streams đang hoạt động
           </h2>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-400 text-lg">
             Khám phá những livestream thú vị đang diễn ra ngay bây giờ
           </p>
         </div>
 
         {streams.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Video className="w-12 h-12 text-slate-400" />
+            <div className="w-24 h-24 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Video className="w-12 h-12 text-slate-500" />
             </div>
-            <h3 className="text-xl font-semibold text-slate-900 mb-2">
+            <h3 className="text-xl font-semibold text-slate-100 mb-2">
               Chưa có livestream nào
             </h3>
-            <p className="text-slate-600 mb-6">
+            <p className="text-slate-400 mb-6">
               Hiện không có livestream nào đang hoạt động trong danh mục này.
             </p>
             <Link to="/register" className="btn btn-primary">
@@ -185,42 +184,42 @@ const Home = () => {
       {/* Features Section */}
       <section className="container-modern">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-slate-900 mb-4">
+          <h2 className="text-3xl font-bold text-slate-100 mb-4">
             Tại sao chọn MantleUR?
           </h2>
-          <p className="text-slate-600 text-lg">
+          <p className="text-slate-400 text-lg">
             Những tính năng độc đáo làm nên sự khác biệt
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="card card-hover p-8 text-center">
+          <div className="card card-hover p-8 text-center bg-slate-900 border border-slate-800">
             <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Users className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Cộng đồng sôi động</h3>
-            <p className="text-slate-600">
+            <h3 className="text-xl font-bold text-slate-100 mb-4">Cộng đồng sôi động</h3>
+            <p className="text-slate-400">
               Tham gia cộng đồng streamer và viewer sôi động với hàng nghìn người dùng hoạt động mỗi ngày.
             </p>
           </div>
 
-          <div className="card card-hover p-8 text-center">
+          <div className="card card-hover p-8 text-center bg-slate-900 border border-slate-800">
             <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <TrendingUp className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Phát triển bền vững</h3>
-            <p className="text-slate-600">
+            <h3 className="text-xl font-bold text-slate-100 mb-4">Phát triển bền vững</h3>
+            <p className="text-slate-400">
               Cơ hội phát triển kênh và kiếm thu nhập thông qua hệ thống donation và tương tác.
             </p>
           </div>
 
-          <div className="card card-hover p-8 text-center">
+          <div className="card card-hover p-8 text-center bg-slate-900 border border-slate-800">
             <div className="w-16 h-16 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <Star className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">Trải nghiệm tuyệt vời</h3>
-            <p className="text-slate-600">
-              Giao diện hiện đại, mượt mà với công nghệ WebRTC cho chất lượng streaming cao nhất.
+            <h3 className="text-xl font-bold text-slate-100 mb-4">Trải nghiệm tuyệt vời</h3>
+            <p className="text-slate-400">
+              Giao diện hiện đại, mượt mà, tối ưu cho xem và phát livestream.
             </p>
           </div>
         </div>
@@ -228,26 +227,26 @@ const Home = () => {
 
       {/* Stats Section */}
       <section className="container-modern">
-        <div className="card card-glass p-12 text-center">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8">
+        <div className="card card-glass p-12 text-center bg-slate-900 border border-slate-800">
+          <h2 className="text-3xl font-bold text-slate-100 mb-8">
             MantleUR trong số liệu
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div>
-              <div className="text-4xl font-bold text-blue-600 mb-2">1,000+</div>
-              <div className="text-slate-600">Streamer hoạt động</div>
+              <div className="text-4xl font-bold text-blue-400 mb-2">1,000+</div>
+              <div className="text-slate-400">Streamer hoạt động</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-green-600 mb-2">50,000+</div>
-              <div className="text-slate-600">Viewer mỗi ngày</div>
+              <div className="text-4xl font-bold text-green-400 mb-2">50,000+</div>
+              <div className="text-slate-400">Viewer mỗi ngày</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-purple-600 mb-2">10,000+</div>
-              <div className="text-slate-600">Giờ streaming</div>
+              <div className="text-4xl font-bold text-purple-400 mb-2">10,000+</div>
+              <div className="text-slate-400">Giờ streaming</div>
             </div>
             <div>
-              <div className="text-4xl font-bold text-orange-600 mb-2">99.9%</div>
-              <div className="text-slate-600">Uptime</div>
+              <div className="text-4xl font-bold text-orange-400 mb-2">99.9%</div>
+              <div className="text-slate-400">Uptime</div>
             </div>
           </div>
         </div>
