@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  email        String   @unique
+  password     String
+  avatar       String?
+  coinBalance  Int      @default(1000) // Số coin ban đầu
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  streams      Stream[]
+  donations   Donation[] @relation("Donor")
+  receivedDonations Donation[] @relation("Streamer")
+
+  @@map("users")
+}
+
+model Stream {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String?
+  isLive      Boolean  @default(false)
+  viewerCount Int      @default(0)
+  thumbnail   String?
+  streamKey   String   @unique // Key để streamer connect
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  streamerId  String
+  streamer    User      @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  donations   Donation[]
+
+  @@map("streams")
+}
+
+model Donation {
+  id        String   @id @default(cuid())
+  amount    Int      // Số coin donate
+  message   String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  donorId   String
+  donor     User     @relation("Donor", fields: [donorId], references: [id], onDelete: Cascade)
+  streamId  String
+  stream    Stream   @relation(fields: [streamId], references: [id], onDelete: Cascade)
+  streamerId String
+  streamer  User     @relation("Streamer", fields: [streamerId], references: [id], onDelete: Cascade)
+
+  @@map("donations")
+}

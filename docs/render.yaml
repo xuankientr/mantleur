@@ -1,0 +1,38 @@
+services:
+  # Backend API Service
+  - type: web
+    name: mantleur-backend
+    env: node
+    plan: starter
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: mantleur-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        value: https://mantleur-frontend.onrender.com
+    healthCheckPath: /api/health
+
+  # Frontend Static Site
+  - type: web
+    name: mantleur-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://mantleur-backend.onrender.com
+
+databases:
+  # PostgreSQL Database
+  - name: mantleur-db
+    plan: starter
+
+
+
