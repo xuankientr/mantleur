@@ -31,7 +31,16 @@ const Login = () => {
     try {
       const result = await login({ email: formData.email, password: formData.password });
       if (result.success) {
-        navigate('/');
+        // Check if user is admin and redirect accordingly
+        const isAdmin = formData.email === 'admin@example.com' || 
+                       formData.email === 'admin@mantleur.com' ||
+                       formData.email === 'testuser@gmail.com';
+        
+        if (isAdmin) {
+          navigate('/admin/withdrawals');
+        } else {
+          navigate('/');
+        }
       } else {
         setError(result.error || 'Đăng nhập thất bại');
       }
@@ -195,7 +204,11 @@ const Login = () => {
           </h3>
           <div className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-blue-700">admin@mantleur.com</span>
+              <span className="text-blue-700">admin@example.com (Admin)</span>
+              <span className="text-blue-600 font-medium">admin123</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-blue-700">testuser@gmail.com (Admin)</span>
               <span className="text-blue-600 font-medium">123456</span>
             </div>
             <div className="flex justify-between">

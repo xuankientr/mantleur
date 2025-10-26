@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .info {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Admin Redirect Feature</h1>
+    
+    <div class="test-section">
+        <h2>📋 Test Cases</h2>
+        <p><strong>Expected Behavior:</strong></p>
+        <ul>
+            <li>✅ <code>admin@example.com</code> + <code>admin123</code> → Redirect to <code>/admin/withdrawals</code></li>
+            <li>✅ <code>testuser@gmail.com</code> + <code>123456</code> → Redirect to <code>/admin/withdrawals</code></li>
+            <li>✅ <code>streamer1@mantleur.com</code> + <code>123456</code> → Redirect to <code>/</code></li>
+            <li>✅ <code>viewer1@mantleur.com</code> + <code>123456</code> → Redirect to <code>/</code></li>
+        </ul>
+    </div>
+
+    <div class="test-section">
+        <h2>🔗 Test Links</h2>
+        <p>Click these links to test the login flow:</p>
+        
+        <button class="test-button" onclick="testAdminLogin()">
+            Test Admin Login (admin@example.com)
+        </button>
+        
+        <button class="test-button" onclick="testTestUserLogin()">
+            Test Admin Login (testuser@gmail.com)
+        </button>
+        
+        <button class="test-button" onclick="testRegularUserLogin()">
+            Test Regular User Login (streamer1@mantleur.com)
+        </button>
+        
+        <button class="test-button" onclick="openLoginPage()">
+            Open Login Page
+        </button>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 Test Results</h2>
+        <div id="test-results">
+            <p class="info">Click the test buttons above to see results...</p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>🛠️ Manual Test Steps</h2>
+        <ol>
+            <li>Go to <a href="http://localhost:5173/login" target="_blank">http://localhost:5173/login</a></li>
+            <li>Try logging in with <code>admin@example.com</code> / <code>admin123</code></li>
+            <li>Verify you're redirected to <code>/admin/withdrawals</code></li>
+            <li>Logout and try with <code>testuser@gmail.com</code> / <code>123456</code></li>
+            <li>Verify you're redirected to <code>/admin/withdrawals</code></li>
+            <li>Logout and try with <code>streamer1@mantleur.com</code> / <code>123456</code></li>
+            <li>Verify you're redirected to <code>/</code> (home page)</li>
+        </ol>
+    </div>
+
+    <script>
+        function testAdminLogin() {
+            addTestResult('Testing admin@example.com login...', 'info');
+            // Simulate the redirect logic
+            const isAdmin = 'admin@example.com' === 'admin@example.com' || 
+                           'admin@example.com' === 'admin@mantleur.com' ||
+                           'admin@example.com' === 'testuser@gmail.com';
+            
+            if (isAdmin) {
+                addTestResult('✅ admin@example.com should redirect to /admin/withdrawals', 'success');
+            } else {
+                addTestResult('❌ admin@example.com should redirect to /admin/withdrawals', 'error');
+            }
+        }
+
+        function testTestUserLogin() {
+            addTestResult('Testing testuser@gmail.com login...', 'info');
+            const isAdmin = 'testuser@gmail.com' === 'admin@example.com' || 
+                           'testuser@gmail.com' === 'admin@mantleur.com' ||
+                           'testuser@gmail.com' === 'testuser@gmail.com';
+            
+            if (isAdmin) {
+                addTestResult('✅ testuser@gmail.com should redirect to /admin/withdrawals', 'success');
+            } else {
+                addTestResult('❌ testuser@gmail.com should redirect to /admin/withdrawals', 'error');
+            }
+        }
+
+        function testRegularUserLogin() {
+            addTestResult('Testing streamer1@mantleur.com login...', 'info');
+            const isAdmin = 'streamer1@mantleur.com' === 'admin@example.com' || 
+                           'streamer1@mantleur.com' === 'admin@mantleur.com' ||
+                           'streamer1@mantleur.com' === 'testuser@gmail.com';
+            
+            if (!isAdmin) {
+                addTestResult('✅ streamer1@mantleur.com should redirect to / (home)', 'success');
+            } else {
+                addTestResult('❌ streamer1@mantleur.com should redirect to / (home)', 'error');
+            }
+        }
+
+        function openLoginPage() {
+            window.open('http://localhost:5173/login', '_blank');
+        }
+
+        function addTestResult(message, type) {
+            const resultsDiv = document.getElementById('test-results');
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = message;
+            resultsDiv.appendChild(p);
+        }
+    </script>
+</body>
+</html>

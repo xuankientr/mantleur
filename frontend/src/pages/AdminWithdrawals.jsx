@@ -9,7 +9,7 @@ const AdminWithdrawals = () => {
   const [selectedWithdrawal, setSelectedWithdrawal] = useState(null);
 
   // Check if user is admin (you can modify this logic)
-  const isAdmin = user?.email === 'admin@example.com' || user?.username === 'admin';
+  const isAdmin = user?.email === 'admin@example.com' || user?.username === 'admin' || user?.email === 'testuser@gmail.com';
 
   useEffect(() => {
     if (isAdmin) {
