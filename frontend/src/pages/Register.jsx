@@ -73,26 +73,26 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-4 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center space-x-3 mb-8">
-            <img src="/logo.png" alt="Mantle UR" className="w-12 h-12 rounded-xl shadow-lg" />
-            <span className="text-3xl font-bold text-gradient">MantleUR</span>
+          <Link to="/" className="inline-flex items-center space-x-2 sm:space-x-3 mb-6 sm:mb-8">
+            <img src="/logo.png" alt="Mantle UR" className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl shadow-lg" />
+            <span className="text-xl sm:text-3xl font-bold text-gradient">MantleUR</span>
           </Link>
           
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
             Tạo tài khoản mới
           </h2>
-          <p className="text-slate-600">
+          <p className="text-sm sm:text-base text-slate-600 px-4">
             Tham gia cộng đồng MantleUR ngay hôm nay
           </p>
         </div>
 
         {/* Register Form */}
-        <div className="card p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="card p-4 sm:p-6 lg:p-8">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Success Message */}
             {success && (
               <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start space-x-3">
@@ -240,9 +240,9 @@ const Register = () => {
                 name="terms"
                 type="checkbox"
                 required
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded mt-1"
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-slate-300 rounded mt-1 flex-shrink-0"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-slate-700">
+              <label htmlFor="terms" className="ml-2 block text-xs sm:text-sm text-slate-700 leading-relaxed">
                 Tôi đồng ý với{' '}
                 <a href="#" className="font-medium text-blue-600 hover:text-blue-500">
                   Điều khoản sử dụng
@@ -289,26 +289,26 @@ const Register = () => {
         </div>
 
         {/* Benefits */}
-        <div className="card p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
-          <h3 className="text-lg font-semibold text-slate-900 mb-4 text-center">
+        <div className="card p-4 sm:p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4 text-center">
             Lợi ích khi tham gia MantleUR
           </h3>
-          <div className="space-y-3 text-sm">
+          <div className="space-y-3 text-xs sm:text-sm">
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
               </div>
               <span className="text-slate-700">Nhận 1000 coin miễn phí khi đăng ký</span>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
               </div>
               <span className="text-slate-700">Tạo và quản lý livestream của riêng bạn</span>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-4 h-4 text-green-600" />
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
               </div>
               <span className="text-slate-700">Tham gia cộng đồng streamer sôi động</span>
             </div>

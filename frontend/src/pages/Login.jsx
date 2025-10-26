@@ -52,26 +52,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 py-4 px-4 sm:py-12 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="inline-flex items-center space-x-3 mb-8">
-            <img src="/logo.png" alt="Mantle UR" className="w-12 h-12 rounded-xl shadow-lg" />
-            <span className="text-3xl font-bold text-gradient">MantleUR</span>
+          <Link to="/" className="inline-flex items-center space-x-2 sm:space-x-3 mb-6 sm:mb-8">
+            <img src="/logo.png" alt="Mantle UR" className="w-8 h-8 sm:w-12 sm:h-12 rounded-xl shadow-lg" />
+            <span className="text-xl sm:text-3xl font-bold text-gradient">MantleUR</span>
           </Link>
           
-          <h2 className="text-3xl font-bold text-slate-900 mb-2">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">
             Chào mừng trở lại
           </h2>
-          <p className="text-slate-600">
+          <p className="text-sm sm:text-base text-slate-600 px-4">
             Đăng nhập để tiếp tục trải nghiệm MantleUR
           </p>
         </div>
 
         {/* Login Form */}
-        <div className="card p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="card p-4 sm:p-6 lg:p-8">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             {/* Error Message */}
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start space-x-3">
@@ -143,7 +143,7 @@ const Login = () => {
             </div>
 
             {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
               <div className="flex items-center">
                 <input
                   id="remember-me"
@@ -198,25 +198,25 @@ const Login = () => {
         </div>
 
         {/* Demo Accounts */}
-        <div className="card p-6 bg-blue-50 border-blue-200">
+        <div className="card p-4 sm:p-6 bg-blue-50 border-blue-200">
           <h3 className="text-sm font-semibold text-blue-900 mb-3">
             Tài khoản demo để test:
           </h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-blue-700">admin@example.com (Admin)</span>
+          <div className="space-y-2 text-xs sm:text-sm">
+            <div className="flex flex-col sm:flex-row sm:justify-between space-y-1 sm:space-y-0">
+              <span className="text-blue-700 break-all">admin@example.com (Admin)</span>
               <span className="text-blue-600 font-medium">admin123</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-blue-700">testuser@gmail.com (Admin)</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between space-y-1 sm:space-y-0">
+              <span className="text-blue-700 break-all">testuser@gmail.com (Admin)</span>
               <span className="text-blue-600 font-medium">123456</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-blue-700">streamer1@mantleur.com</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between space-y-1 sm:space-y-0">
+              <span className="text-blue-700 break-all">streamer1@mantleur.com</span>
               <span className="text-blue-600 font-medium">123456</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-blue-700">viewer1@mantleur.com</span>
+            <div className="flex flex-col sm:flex-row sm:justify-between space-y-1 sm:space-y-0">
+              <span className="text-blue-700 break-all">viewer1@mantleur.com</span>
               <span className="text-blue-600 font-medium">123456</span>
             </div>
           </div>

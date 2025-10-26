@@ -201,7 +201,10 @@ const Layout = () => {
               {isAuthenticated ? (
                 <>
                   {/* Search (mobile icon) */}
-                  <button className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200">
+                  <button 
+                    className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
+                    onClick={() => setSearchOpen(!searchOpen)}
+                  >
                     <Search className="w-5 h-5" />
                   </button>
 
@@ -283,7 +286,7 @@ const Layout = () => {
               {/* Mobile menu button */}
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-xl transition-all duration-200"
+                className="md:hidden p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-all duration-200"
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6" />
@@ -294,6 +297,79 @@ const Layout = () => {
             </div>
           </div>
         </div>
+
+        {/* Mobile Search Overlay */}
+        {searchOpen && (
+          <div className="md:hidden bg-white border-t border-slate-200 shadow-lg">
+            <div className="px-4 py-3">
+              <div className="relative" ref={searchBoxRef}>
+                <div className="flex items-center bg-slate-50 rounded-xl border border-slate-300 px-3 py-2">
+                  <Search className="w-4 h-4 text-slate-500" />
+                  <input
+                    value={query}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setQuery(v);
+                      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+                      setSearchLoading(true);
+                      searchTimeoutRef.current = setTimeout(async () => {
+                        try {
+                          if (!v) { setResults([]); setSearchLoading(false); return; }
+                          const { data } = await api.get('/streams', {
+                            params: { q: v, limit: 8, t: Date.now() }
+                          });
+                          setResults(Array.isArray(data.streams) ? data.streams : []);
+                        } catch (e) {
+                          setResults([]);
+                        } finally {
+                          setSearchLoading(false);
+                        }
+                      }, 300);
+                    }}
+                    placeholder="Tìm stream, kênh, thể loại..."
+                    className="ml-2 bg-transparent outline-none text-sm text-slate-900 placeholder:text-slate-500 w-full"
+                    autoFocus
+                  />
+                  <button
+                    onClick={() => setSearchOpen(false)}
+                    className="ml-2 p-1 text-slate-500 hover:text-slate-700"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                {query && (
+                  <div className="mt-2 max-h-60 overflow-auto bg-white border border-slate-200 rounded-xl shadow-lg">
+                    <div className="p-2">
+                      {searchLoading ? (
+                        <div className="px-3 py-2 text-slate-500 text-sm">Đang tìm kiếm...</div>
+                      ) : results.length === 0 ? (
+                        <div className="px-3 py-2 text-slate-500 text-sm">Không có kết quả</div>
+                      ) : (
+                        results.map((s) => (
+                          <button
+                            key={s.id}
+                            onClick={() => { 
+                              setSearchOpen(false); 
+                              setQuery(''); 
+                              navigate(`/stream/${s.id}`); 
+                            }}
+                            className="w-full flex items-center space-x-3 px-3 py-2 hover:bg-slate-100 rounded-lg text-left"
+                          >
+                            <img src={s.thumbnail || '/vite.svg'} alt={s.title} className="w-10 h-6 rounded object-cover" />
+                            <div className="min-w-0">
+                              <p className="text-sm text-slate-900 truncate">{s.title}</p>
+                              <p className="text-xs text-slate-500 truncate">{s.streamer?.username} • {s.category}</p>
+                            </div>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (

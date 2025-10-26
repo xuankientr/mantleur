@@ -47,8 +47,8 @@ export const authAPI = {
 
 // User API
 export const userAPI = {
-  updateProfile: (userData) => api.put('/user/profile', userData),
-  getUserProfile: (userId) => api.get(`/user/${userId}`),
+  updateProfile: (userData) => api.put('/users/profile', userData),
+  getUserProfile: (userId) => api.get(`/users/${userId}`),
   getUserStreams: (userId) => api.get(`/users/${userId}/streams`),
   addCoins: (amount) => api.post('/users/add-coins', { amount }),
 };
