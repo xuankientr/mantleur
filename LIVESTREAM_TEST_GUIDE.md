@@ -142,3 +142,41 @@ navigator.mediaDevices.getUserMedia({video: true, audio: true})
 **🎥 Nếu tất cả test cases pass, livestream đã hoạt động hoàn hảo!**
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

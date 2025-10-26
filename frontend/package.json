@@ -10,9 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
     "axios": "^1.12.2",
+    "buffer": "^6.0.3",
     "lucide-react": "^0.544.0",
     "peerjs": "^1.5.5",
+    "process": "^0.11.10",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.3",
@@ -20,8 +24,8 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
+    "@types/react": "^18.3.26",
+    "@types/react-dom": "^18.3.7",
     "@vitejs/plugin-react": "^5.0.3",
     "autoprefixer": "^10.4.21",
     "eslint": "^9.36.0",

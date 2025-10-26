@@ -142,12 +142,75 @@ const addCoins = async (req, res) => {
   }
 };
 
+// Trừ coin (cho withdrawal)
+const deductCoins = async (req, res) => {
+  try {
+    const { amount } = req.body;
+    const userId = req.user.id;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Invalid amount' });
+    }
+
+    // Kiểm tra balance trước khi trừ
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { coinBalance: true }
+    });
+
+    if (!user || user.coinBalance < amount) {
+      return res.status(400).json({ error: 'Insufficient coin balance' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: {
+        coinBalance: {
+          decrement: amount
+        }
+      },
+      select: {
+        id: true,
+        username: true,
+        coinBalance: true
+      }
+    });
+
+    res.json({
+      message: 'Coins deducted successfully',
+      newBalance: updatedUser.coinBalance
+    });
+
+  } catch (error) {
+    console.error('Deduct coins error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   updateProfile,
   getUserProfile,
   getUserStreamHistory,
-  addCoins
+  addCoins,
+  deductCoins
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

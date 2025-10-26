@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -22,8 +22,14 @@ model User {
 
   // Relations
   streams      Stream[]
+  scheduledStreams ScheduledStream[]
   donations   Donation[] @relation("Donor")
   receivedDonations Donation[] @relation("Streamer")
+  payments    Payment[]
+  withdrawals Withdrawal[]
+  transactions Transaction[]
+  following   Follow[]  @relation("Following") // user theo dõi ai
+  followers   Follow[]  @relation("Followers") // ai theo dõi user này
 
   @@map("users")
 }
@@ -44,6 +50,7 @@ model Stream {
   streamerId  String
   streamer    User      @relation(fields: [streamerId], references: [id], onDelete: Cascade)
   donations   Donation[]
+  scheduledStream ScheduledStream?
 
   @@map("streams")
 }
@@ -63,4 +70,99 @@ model Donation {
   streamer  User     @relation("Streamer", fields: [streamerId], references: [id], onDelete: Cascade)
 
   @@map("donations")
+}
+
+model ScheduledStream {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  category    String?
+  thumbnail   String?
+  scheduledAt DateTime // Thời gian dự kiến stream
+  duration    Int?     // Thời lượng dự kiến (phút)
+  isNotified  Boolean  @default(false) // Đã thông báo chưa
+  status      String   @default("scheduled") // scheduled, live, completed, cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  streamerId  String
+  streamer    User     @relation(fields: [streamerId], references: [id], onDelete: Cascade)
+  streamId    String?  @unique // Khi stream bắt đầu, link với Stream thực tế
+  stream      Stream?  @relation(fields: [streamId], references: [id], onDelete: SetNull)
+
+  @@map("scheduled_streams")
+}
+
+model Payment {
+  id          String   @id @default(cuid())
+  type        String   // "topup", "withdraw"
+  amount      Int      // Số USDT hoặc coins
+  txHash      String?  // Blockchain transaction hash
+  status      String   @default("pending") // pending, completed, failed, cancelled
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payments")
+}
+
+model Withdrawal {
+  id          String   @id @default(cuid())
+  amount      Int      // Số VNĐ rút ra
+  coinAmount  Int      // Số coin đã trừ
+  method      String   // "bank_transfer", "momo", "zalopay"
+  status      String   @default("pending") // pending, processing, completed, failed, cancelled
+  bankAccount String?  // Số tài khoản ngân hàng
+  bankName    String?  // Tên ngân hàng
+  accountName String?  // Tên chủ tài khoản
+  phoneNumber String?  // Số điện thoại (cho Momo, ZaloPay)
+  transactionId String? // ID giao dịch từ payment gateway
+  adminNote   String?  // Ghi chú của admin
+  processedAt DateTime? // Thời gian xử lý
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("withdrawals")
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+
+  // Relations
+  followerId  String
+  follower    User     @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)
+
+  streamerId  String
+  streamer    User     @relation("Followers", fields: [streamerId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, streamerId])
+  @@map("follows")
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  type      String   // "deposit", "withdraw"
+  amount    Int      // Amount in VND
+  status    String   @default("pending") // pending, success, failed
+  txnId     String?  // Transaction ID from payment gateway
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([txnId])
+  @@map("transactions")
 }

@@ -49,8 +49,8 @@ export const authAPI = {
 export const userAPI = {
   updateProfile: (userData) => api.put('/user/profile', userData),
   getUserProfile: (userId) => api.get(`/user/${userId}`),
-  getUserStreams: (userId) => api.get(`/user/${userId}/streams`),
-  addCoins: (amount) => api.post('/user/add-coins', { amount }),
+  getUserStreams: (userId) => api.get(`/users/${userId}/streams`),
+  addCoins: (amount) => api.post('/users/add-coins', { amount }),
 };
 
 // Stream API
@@ -63,6 +63,15 @@ export const streamAPI = {
   getUserStreams: () => api.get('/streams/user/streams'),
 };
 
+// Follow API
+export const followAPI = {
+  follow: (streamerId) => api.post(`/follows/${streamerId}`),
+  unfollow: (streamerId) => api.delete(`/follows/${streamerId}`),
+  listFollowings: () => api.get('/follows/me/followings'),
+  listFollowers: (streamerId) => api.get('/follows/me/followers', { params: { streamerId } }),
+  isFollowing: (streamerId) => api.get(`/follows/is-following/${streamerId}`),
+};
+
 // Donation API
 export const donationAPI = {
   createDonation: (donationData) => api.post('/donations', donationData),
@@ -72,6 +81,23 @@ export const donationAPI = {
 };
 
 export default api;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

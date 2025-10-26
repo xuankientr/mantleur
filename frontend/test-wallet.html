@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Wallet Conflict Test</h1>
+        <p>Test wallet extension conflicts and polyfills</p>
+        
+        <div id="status" class="status info">Checking...</div>
+        
+        <div>
+            <h3>🧪 Tests</h3>
+            <button onclick="testPolyfills()">Test Polyfills</button>
+            <button onclick="testWallets()">Test Wallets</button>
+            <button onclick="testBuffer()">Test Buffer</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div>
+            <h3>📝 Logs</h3>
+            <div id="logs" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${time}] ${message}<br>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = `status ${type}`;
+        }
+
+        function testPolyfills() {
+            log('🧪 Testing polyfills...');
+            
+            const tests = [
+                { name: 'Buffer', test: () => typeof window.Buffer !== 'undefined' },
+                { name: 'Process', test: () => typeof window.process !== 'undefined' },
+                { name: 'Global', test: () => typeof window.global !== 'undefined' },
+                { name: 'GlobalThis', test: () => typeof globalThis !== 'undefined' }
+            ];
+            
+            let allPassed = true;
+            tests.forEach(test => {
+                try {
+                    const result = test.test();
+                    log(`${result ? '✅' : '❌'} ${test.name}: ${result ? 'Available' : 'Not available'}`);
+                    if (!result) allPassed = false;
+                } catch (e) {
+                    log(`❌ ${test.name}: Error - ${e.message}`);
+                    allPassed = false;
+                }
+            });
+            
+            updateStatus(allPassed ? '✅ All polyfills working' : '❌ Some polyfills missing', allPassed ? 'success' : 'error');
+        }
+
+        function testWallets() {
+            log('🧪 Testing wallet extensions...');
+            
+            const wallets = [
+                { name: 'Ethereum', prop: 'ethereum' },
+                { name: 'Solana', prop: 'solana' },
+                { name: 'TronWeb', prop: 'tronWeb' }
+            ];
+            
+            wallets.forEach(wallet => {
+                const exists = typeof window[wallet.prop] !== 'undefined';
+                const writable = exists ? (() => {
+                    try {
+                        const descriptor = Object.getOwnPropertyDescriptor(window, wallet.prop);
+                        return descriptor && descriptor.writable;
+                    } catch (e) {
+                        return false;
+                    }
+                })() : false;
+                
+                log(`${exists ? '✅' : '❌'} ${wallet.name}: ${exists ? 'Found' : 'Not found'} ${writable ? '(Writable)' : '(Read-only)'}`);
+            });
+            
+            updateStatus('✅ Wallet test completed', 'info');
+        }
+
+        function testBuffer() {
+            log('🧪 Testing Buffer functionality...');
+            
+            try {
+                if (typeof window.Buffer !== 'undefined') {
+                    const testString = 'Hello World';
+                    const buffer = window.Buffer.from(testString, 'utf8');
+                    const backToString = buffer.toString('utf8');
+                    
+                    log(`✅ Buffer creation: ${testString} -> ${backToString}`);
+                    log(`✅ Buffer length: ${buffer.length}`);
+                    log(`✅ Buffer type: ${typeof buffer}`);
+                    
+                    updateStatus('✅ Buffer working correctly', 'success');
+                } else {
+                    log('❌ Buffer not available');
+                    updateStatus('❌ Buffer not available', 'error');
+                }
+            } catch (e) {
+                log(`❌ Buffer error: ${e.message}`);
+                updateStatus(`❌ Buffer error: ${e.message}`, 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('🚀 Wallet test page loaded');
+            testPolyfills();
+            testWallets();
+        };
+    </script>
+</body>
+</html>
+
+

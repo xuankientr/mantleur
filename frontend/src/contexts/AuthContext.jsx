@@ -164,6 +164,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+
   const value = {
     ...state,
     login,
@@ -182,6 +183,23 @@ export const useAuth = () => {
   }
   return context;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

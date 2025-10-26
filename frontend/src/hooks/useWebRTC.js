@@ -17,6 +17,20 @@ export const useWebRTC = () => {
   const turnUsername = import.meta.env.VITE_TURN_USERNAME;
   const turnCredential = import.meta.env.VITE_TURN_CREDENTIAL;
 
+  // Reset peer connection
+  const resetPeerConnection = useCallback(() => {
+    if (peerConnectionRef.current) {
+      try { 
+        peerConnectionRef.current.close(); 
+      } catch (e) {
+        console.warn('Error closing peer connection:', e);
+      }
+      peerConnectionRef.current = null;
+    }
+    pendingIceCandidatesRef.current = [];
+    setIsConnected(false);
+  }, []);
+
   const rtcConfig = {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -55,48 +69,91 @@ export const useWebRTC = () => {
     socket.off('webrtc-offer');
     socket.off('webrtc-ice-candidate');
 
+    // Debounce offers to prevent duplicate processing
+    let offerTimeout = null;
+    let lastOfferTime = 0;
+
     socket.on('webrtc-offer', async (data) => {
-      try {
-        if (!data || data.streamId !== streamId) return;
-        console.log('Received offer for stream', streamId);
-
-        // Tạo PC nếu chưa có
-        if (!peerConnectionRef.current) {
-          peerConnectionRef.current = new RTCPeerConnection(rtcConfig);
-          // Gửi ICE từ streamer về viewer
-          peerConnectionRef.current.onicecandidate = (event) => {
-            if (event.candidate) {
-              socket.emit('webrtc-ice-candidate', {
-                streamId,
-                candidate: event.candidate,
-                role: 'streamer'
-              });
-            }
-          };
-        }
-
-        const pc = peerConnectionRef.current;
-
-        // Gắn track local (camera/mic) cho streamer
-        if (stream) {
-          const senders = pc.getSenders();
-          const existingTracks = senders.map(s => s.track).filter(Boolean);
-          stream.getTracks().forEach((track) => {
-            if (!existingTracks.includes(track)) {
-              pc.addTrack(track, stream);
-            }
-          });
-        }
-
-        await pc.setRemoteDescription({ type: 'offer', sdp: data.sdp });
-        const answer = await pc.createAnswer();
-        await pc.setLocalDescription(answer);
-        socket.emit('webrtc-answer', { streamId, sdp: answer.sdp, type: answer.type });
-        console.log('Sent answer for stream', streamId);
-      } catch (err) {
-        console.error('Streamer handle offer failed:', err);
-        setError('Streamer answer failed: ' + err.message);
+      console.log('📥 Streamer received offer:', data);
+      if (!data || data.streamId !== streamId) {
+        console.log('❌ Invalid offer data or wrong streamId');
+        return;
       }
+
+      // Debounce duplicate offers within 1 second
+      const now = Date.now();
+      if (now - lastOfferTime < 1000) {
+        console.log('⚠️ Duplicate offer detected within 1s, ignoring');
+        return;
+      }
+      lastOfferTime = now;
+
+      // Clear previous timeout
+      if (offerTimeout) {
+        clearTimeout(offerTimeout);
+      }
+
+      // Process offer after short delay to debounce
+      offerTimeout = setTimeout(async () => {
+        try {
+          console.log('✅ Processing offer for stream', streamId);
+
+          // Tạo PC nếu chưa có
+          if (!peerConnectionRef.current) {
+            console.log('🔧 Creating new PC for streamer');
+            peerConnectionRef.current = new RTCPeerConnection(rtcConfig);
+            // Gửi ICE từ streamer về viewer
+            peerConnectionRef.current.onicecandidate = (event) => {
+              if (event.candidate) {
+                console.log('🧊 Streamer ICE candidate generated');
+                socket.emit('webrtc-ice-candidate', {
+                  streamId,
+                  candidate: event.candidate,
+                  role: 'streamer'
+                });
+              }
+            };
+          }
+
+          const pc = peerConnectionRef.current;
+
+          // Kiểm tra trạng thái signaling state
+          if (pc.signalingState !== 'stable') {
+            console.warn('PC not in stable state, current state:', pc.signalingState, 'ignoring offer');
+            return;
+          }
+
+          // Gắn track local (camera/mic) cho streamer
+          if (stream) {
+            const senders = pc.getSenders();
+            const existingTracks = senders.map(s => s.track).filter(Boolean);
+            stream.getTracks().forEach((track) => {
+              if (!existingTracks.includes(track)) {
+                pc.addTrack(track, stream);
+              }
+            });
+          }
+
+          // Set remote description (offer)
+          console.log('📥 Setting remote description (offer)...');
+          await pc.setRemoteDescription({ type: 'offer', sdp: data.sdp });
+          console.log('✅ Streamer set remote description (offer)');
+
+          // Tạo và set local description (answer)
+          console.log('📤 Creating answer...');
+          const answer = await pc.createAnswer();
+          console.log('📤 Setting local description (answer)...');
+          await pc.setLocalDescription(answer);
+          console.log('📤 Emitting answer to viewer...');
+          socket.emit('webrtc-answer', { streamId, sdp: answer.sdp, type: answer.type });
+          console.log('✅ Sent answer for stream', streamId);
+        } catch (err) {
+          console.error('Streamer handle offer failed:', err);
+          setError('Streamer answer failed: ' + err.message);
+          // Reset peer connection on error
+          resetPeerConnection();
+        }
+      }, 100); // 100ms debounce delay
     });
 
     socket.on('webrtc-ice-candidate', async (data) => {
@@ -104,12 +161,21 @@ export const useWebRTC = () => {
         if (!data || data.streamId !== streamId) return;
         if (!peerConnectionRef.current) return;
         if (!data.candidate) return;
-        await peerConnectionRef.current.addIceCandidate(new RTCIceCandidate(data.candidate));
+        
+        // Kiểm tra trạng thái signaling state trước khi add ICE
+        const pc = peerConnectionRef.current;
+        if (pc.signalingState === 'closed') {
+          console.warn('PC is closed, ignoring ICE candidate');
+          return;
+        }
+        
+        await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+        console.log('Streamer added ICE candidate');
       } catch (err) {
         console.error('Streamer add ICE failed:', err);
       }
     });
-  }, [socket, rtcConfig, stream]);
+  }, [socket, rtcConfig, stream, resetPeerConnection]);
 
   // Bắt đầu stream (STREAMER)
   const startStream = useCallback(async (streamId) => {
@@ -180,7 +246,7 @@ export const useWebRTC = () => {
 
       // Join phòng signaling theo streamId và gắn handler answer/ICE
       if (socket) {
-        socket.emit('join-stream', streamId);
+        socket.emit('join-stream', { streamId, isStreamer: true });
         attachStreamerSignalingHandlers(streamId);
       }
 
@@ -220,7 +286,9 @@ export const useWebRTC = () => {
       peerConnectionRef.current = null;
     }
     if (socket && currentStreamIdRef.current) {
-      socket.emit('leave-stream', currentStreamIdRef.current);
+      // Determine if this is a streamer or viewer based on context
+      const isStreamer = stream !== null; // If we have a stream, we're the streamer
+      socket.emit('leave-stream', { streamId: currentStreamIdRef.current, isStreamer });
     }
     setIsConnected(false);
   }, [stream]);
@@ -228,37 +296,52 @@ export const useWebRTC = () => {
   // Kết nối với stream (VIEWER)
   const connectToStream = useCallback(async (streamId) => {
     try {
+      console.log('🔗 Starting connectToStream for:', streamId);
+      
       if (!socket) {
         setError('Socket not connected');
+        console.error('❌ No socket available');
         return;
       }
-      setError(null);
-      currentStreamIdRef.current = streamId;
-      socket.emit('join-stream', streamId);
-
-      // Nếu đã có kết nối trước đó, đóng lại trước khi tạo kết nối mới
-      if (peerConnectionRef.current) {
-        try { peerConnectionRef.current.close(); } catch {}
-        peerConnectionRef.current = null;
+      
+      // Tránh kết nối trùng lặp
+      if (currentStreamIdRef.current === streamId && peerConnectionRef.current) {
+        console.log('⚠️ Already connected to stream:', streamId);
+        console.log('🔍 Current connection state:', peerConnectionRef.current.connectionState);
+        console.log('🔍 Current signaling state:', peerConnectionRef.current.signalingState);
+        return;
       }
+      
+      setError(null);
+      
+      // Nếu đã có kết nối trước đó, đóng lại trước khi tạo kết nối mới
+      resetPeerConnection();
+      
+      currentStreamIdRef.current = streamId;
+      console.log('📡 Emitting join-stream for:', streamId);
+      socket.emit('join-stream', { streamId, isStreamer: false });
 
       // Tạo RTCPeerConnection mới
+      console.log('🔧 Creating new RTCPeerConnection');
       const pc = new RTCPeerConnection(rtcConfig);
       peerConnectionRef.current = pc;
 
       // Theo dõi trạng thái kết nối để cập nhật UI
       pc.onconnectionstatechange = () => {
         const state = pc.connectionState;
-        console.log('PC connectionState:', state);
+        console.log('🔗 PC connectionState:', state);
         if (state === 'connected') {
+          console.log('✅ WebRTC connected!');
           setIsConnected(true);
         } else if (state === 'failed' || state === 'disconnected') {
+          console.log('❌ WebRTC disconnected/failed');
           setIsConnected(false);
         }
       };
 
       pc.onicecandidate = (event) => {
         if (event.candidate) {
+          console.log('🧊 ICE candidate generated');
           socket.emit('webrtc-ice-candidate', {
             streamId,
             candidate: event.candidate,
@@ -268,11 +351,24 @@ export const useWebRTC = () => {
       };
 
       pc.ontrack = (event) => {
+        console.log('🎥 Viewer received track:', event);
         const [remoteStream] = event.streams;
+        console.log('📺 Remote stream:', remoteStream);
+        console.log('🎬 Video ref:', remoteVideoRef.current);
+        
         if (remoteVideoRef.current && remoteStream) {
+          console.log('✅ Setting video srcObject');
           remoteVideoRef.current.srcObject = remoteStream;
-          remoteVideoRef.current.play().catch(() => {});
-          setIsConnected(true);
+          remoteVideoRef.current.play().then(() => {
+            console.log('🎉 Video playing successfully!');
+            setIsConnected(true);
+          }).catch((err) => {
+            console.error('❌ Video play failed:', err);
+          });
+        } else {
+          console.warn('⚠️ No video ref or remote stream');
+          console.log('Video ref exists:', !!remoteVideoRef.current);
+          console.log('Remote stream exists:', !!remoteStream);
         }
       };
 
@@ -280,18 +376,28 @@ export const useWebRTC = () => {
       socket.off('webrtc-answer');
       socket.on('webrtc-answer', async (data) => {
         try {
-          if (!data || data.streamId !== streamId) return;
-          // Chỉ set remote description nếu đang ở trạng thái hợp lệ
-          if (pc.currentRemoteDescription) {
-            console.warn('Remote description already set. Skipping duplicate answer.');
+          console.log('📥 Received answer from streamer:', data);
+          console.log('🔍 Current PC state:', peerConnectionRef.current?.signalingState);
+          if (!data || data.streamId !== streamId) {
+            console.log('❌ Invalid answer data or wrong streamId');
             return;
           }
+          
+          // Kiểm tra trạng thái signaling state
           if (pc.signalingState !== 'have-local-offer') {
-            console.warn('Unexpected signalingState for answer:', pc.signalingState);
+            console.warn('⚠️ Unexpected signalingState for answer:', pc.signalingState);
             return;
           }
+          
+          // Chỉ set remote description nếu chưa có
+          if (pc.remoteDescription) {
+            console.warn('⚠️ Remote description already set. Skipping duplicate answer.');
+            return;
+          }
+          
+          console.log('📥 Setting remote description (answer)...');
           await pc.setRemoteDescription({ type: 'answer', sdp: data.sdp });
-          console.log('Viewer set remote description (answer)');
+          console.log('✅ Viewer set remote description (answer)');
 
           // Sau khi có remoteDescription, add các ICE đã buffer
           if (pendingIceCandidatesRef.current.length) {
@@ -307,6 +413,8 @@ export const useWebRTC = () => {
           }
         } catch (err) {
           console.error('Viewer setRemoteDescription failed:', err);
+          setError('Failed to set remote description: ' + err.message);
+          resetPeerConnection();
         }
       });
 
@@ -316,28 +424,41 @@ export const useWebRTC = () => {
         try {
           if (!data || data.streamId !== streamId) return;
           if (!data.candidate) return;
+          
+          // Kiểm tra trạng thái signaling state
+          if (pc.signalingState === 'closed') {
+            console.warn('PC is closed, ignoring ICE candidate');
+            return;
+          }
+          
           // Nếu chưa có remoteDescription thì buffer lại
           if (!pc.remoteDescription) {
             pendingIceCandidatesRef.current.push(data.candidate);
+            console.log('Buffered ICE candidate, waiting for remote description');
             return;
           }
+          
           await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+          console.log('Viewer added ICE candidate');
         } catch (err) {
           console.error('Viewer add ICE failed:', err);
         }
       });
 
       // Tạo offer và gửi lên streamer
+      console.log('📤 Creating offer...');
       const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+      console.log('📤 Setting local description...');
       await pc.setLocalDescription(offer);
+      console.log('📤 Emitting offer to streamer...');
       socket.emit('webrtc-offer', { streamId, sdp: offer.sdp, type: offer.type });
-      console.log('Viewer sent offer for stream', streamId);
+      console.log('✅ Viewer sent offer for stream', streamId);
     } catch (err) {
       console.error('Viewer connect failed:', err);
       setError('Failed to connect to stream: ' + err.message);
       setIsConnected(false);
     }
-  }, [socket, rtcConfig]);
+  }, [socket, rtcConfig, resetPeerConnection]);
 
   // Retry connection với delay
   const retryConnection = useCallback((streamKey, delay = 2000) => {
@@ -346,16 +467,19 @@ export const useWebRTC = () => {
       console.log('Retrying connection now...');
       connectToStream(streamKey);
     }, delay);
-  }, []);
+  }, [connectToStream]);
 
   // Cleanup
   const cleanup = useCallback(() => {
     stopStream();
-    if (peerConnectionRef.current) {
-      try { peerConnectionRef.current.close(); } catch {}
-      peerConnectionRef.current = null;
+    resetPeerConnection();
+    
+    // Leave stream room when cleaning up
+    if (socket && currentStreamIdRef.current) {
+      const isStreamer = stream !== null;
+      socket.emit('leave-stream', { streamId: currentStreamIdRef.current, isStreamer });
     }
-  }, [stopStream]);
+  }, [stopStream, resetPeerConnection, socket, stream]);
 
   return {
     stream,
@@ -368,7 +492,9 @@ export const useWebRTC = () => {
     connectToStream,
     retryConnection,
     testMediaAccess,
+    resetPeerConnection,
     cleanup,
   };
 };
+
 

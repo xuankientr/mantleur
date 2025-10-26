@@ -26,12 +26,18 @@ const Chat = ({ streamId, user }) => {
           ...prev,
           {
             id: `donation-${Date.now()}`,
-            message: `🎁 ${payload.donor?.username || 'Ẩn danh'} đã donate ${payload.amount} coin: ${payload.message || ''}`.trim(),
+            message: `${payload.donor?.username || 'Ẩn danh'} đã donate ${payload.amount} coin: ${payload.message || ''}`.trim(),
             username: 'SYSTEM',
             timestamp: new Date().toISOString()
           }
         ]);
       });
+
+      // Restore messages from localStorage
+      try {
+        const saved = localStorage.getItem(`chat-${streamId}`);
+        if (saved) setMessages(JSON.parse(saved));
+      } catch {}
 
       return () => {
         socket.emit('leave-stream', streamId);
@@ -48,6 +54,13 @@ const Chat = ({ streamId, user }) => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Persist messages
+  useEffect(() => {
+    try {
+      localStorage.setItem(`chat-${streamId}`, JSON.stringify(messages.slice(-200)));
+    } catch {}
+  }, [messages, streamId]);
 
   const sendMessage = (e) => {
     e.preventDefault();
@@ -75,8 +88,8 @@ const Chat = ({ streamId, user }) => {
 
   if (!isConnected) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="flex items-center justify-center text-gray-500">
+      <div className="card p-5">
+        <div className="flex items-center justify-center text-slate-500">
           <MessageCircle className="w-5 h-5 mr-2" />
           <span>Đang kết nối chat...</span>
         </div>
@@ -85,19 +98,19 @@ const Chat = ({ streamId, user }) => {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm flex flex-col h-96">
+    <div className="card flex flex-col h-96">
       {/* Chat Header */}
-      <div className="p-4 border-b">
-        <h3 className="font-semibold text-gray-900 flex items-center">
+      <div className="p-5 border-b border-slate-200">
+        <h3 className="font-semibold text-slate-900 flex items-center">
           <MessageCircle className="w-5 h-5 mr-2" />
           Chat
         </h3>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+      <div className="flex-1 overflow-y-auto p-5 space-y-3">
         {messages.length === 0 ? (
-          <div className="text-center text-gray-500 py-8">
+          <div className="text-center text-slate-500 py-8">
             <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p>Chưa có tin nhắn nào. Hãy bắt đầu trò chuyện!</p>
           </div>
@@ -111,14 +124,14 @@ const Chat = ({ streamId, user }) => {
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2">
-                  <span className="font-medium text-sm text-gray-900">
+                  <span className="font-medium text-sm text-slate-900">
                     {message.username}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-slate-500">
                     {new Date(message.timestamp).toLocaleTimeString()}
                   </span>
                 </div>
-                <p className="text-sm text-gray-700 mt-1">{message.message}</p>
+                <p className="text-sm text-slate-700 mt-1">{message.message}</p>
               </div>
             </div>
           ))
@@ -127,20 +140,20 @@ const Chat = ({ streamId, user }) => {
       </div>
 
       {/* Message Input */}
-      <div className="p-4 border-t">
+      <div className="p-5 border-t border-slate-200">
         <form onSubmit={sendMessage} className="flex space-x-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Nhập tin nhắn..."
-            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            disabled={!user}
-          />
+        <input
+          type="text"
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
+          placeholder="Nhập tin nhắn..."
+          className="input"
+          disabled={!user}
+        />
           <button
             type="submit"
             disabled={!newMessage.trim() || !user}
-            className="bg-primary-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className="btn btn-primary btn-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             <Send className="w-4 h-4" />
           </button>

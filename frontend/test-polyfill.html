@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polyfill Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Polyfill Test</h1>
+        <p>Test polyfill loading directly</p>
+        
+        <div id="status" class="status info">Checking...</div>
+        
+        <div>
+            <h3>📝 Logs</h3>
+            <div id="logs" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${time}] ${message}<br>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = `status ${type}`;
+        }
+
+        // Test polyfill loading
+        function testPolyfills() {
+            log('🧪 Testing polyfill loading...');
+            
+            // Test global
+            if (typeof window.global !== 'undefined') {
+                log('✅ window.global available');
+            } else {
+                log('❌ window.global not available');
+            }
+            
+            if (typeof globalThis.global !== 'undefined') {
+                log('✅ globalThis.global available');
+            } else {
+                log('❌ globalThis.global not available');
+            }
+            
+            // Test Buffer
+            if (typeof window.Buffer !== 'undefined') {
+                log('✅ window.Buffer available');
+                log(`✅ window.Buffer type: ${typeof window.Buffer}`);
+                log(`✅ window.Buffer name: ${window.Buffer.name}`);
+                
+                // Test Buffer functionality
+                try {
+                    const testString = 'Hello World';
+                    const buffer = window.Buffer.from(testString, 'utf8');
+                    const backToString = buffer.toString('utf8');
+                    log(`✅ Buffer test: ${testString} -> ${backToString}`);
+                    log(`✅ Buffer length: ${buffer.length()}`);
+                } catch (e) {
+                    log(`❌ Buffer test error: ${e.message}`);
+                }
+            } else {
+                log('❌ window.Buffer not available');
+            }
+            
+            if (typeof globalThis.Buffer !== 'undefined') {
+                log('✅ globalThis.Buffer available');
+            } else {
+                log('❌ globalThis.Buffer not available');
+            }
+            
+            // Test Process
+            if (typeof window.process !== 'undefined') {
+                log('✅ window.process available');
+                log(`✅ window.process type: ${typeof window.process}`);
+                log(`✅ window.process.env: ${JSON.stringify(window.process.env)}`);
+            } else {
+                log('❌ window.process not available');
+            }
+            
+            if (typeof globalThis.process !== 'undefined') {
+                log('✅ globalThis.process available');
+            } else {
+                log('❌ globalThis.process not available');
+            }
+            
+            // Test wallet manager
+            if (typeof window.walletManager !== 'undefined') {
+                log('✅ window.walletManager available');
+                log(`✅ window.walletManager type: ${typeof window.walletManager}`);
+            } else {
+                log('❌ window.walletManager not available');
+            }
+            
+            // Overall status
+            const hasBuffer = typeof window.Buffer !== 'undefined';
+            const hasProcess = typeof window.process !== 'undefined';
+            const hasGlobal = typeof window.global !== 'undefined';
+            
+            if (hasBuffer && hasProcess && hasGlobal) {
+                updateStatus('✅ All polyfills loaded successfully', 'success');
+            } else {
+                updateStatus('❌ Some polyfills missing', 'error');
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('🚀 Polyfill test page loaded');
+            log('🔍 Checking polyfill availability...');
+            
+            // Check if polyfills are loaded
+            setTimeout(() => {
+                testPolyfills();
+            }, 100);
+        };
+    </script>
+</body>
+</html>
+
+

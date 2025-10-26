@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buffer Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .warning { background-color: #fff3cd; color: #856404; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Buffer Test</h1>
+        <p>Test Buffer polyfill loading</p>
+        
+        <div id="status" class="status info">Checking...</div>
+        
+        <div>
+            <h3>🧪 Tests</h3>
+            <button onclick="testBufferDirect()">Test Buffer Direct</button>
+            <button onclick="testBufferImport()">Test Buffer Import</button>
+            <button onclick="testBufferRequire()">Test Buffer Require</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+        </div>
+        
+        <div>
+            <h3>📝 Logs</h3>
+            <div id="logs" class="log"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${time}] ${message}<br>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = `status ${type}`;
+        }
+
+        function testBufferDirect() {
+            log('🧪 Testing Buffer direct assignment...');
+            
+            try {
+                // Try to create Buffer directly
+                if (typeof Buffer !== 'undefined') {
+                    const testString = 'Hello World';
+                    const buffer = Buffer.from(testString, 'utf8');
+                    const backToString = buffer.toString('utf8');
+                    
+                    log(`✅ Buffer direct: ${testString} -> ${backToString}`);
+                    log(`✅ Buffer length: ${buffer.length()}`);
+                    log(`✅ Buffer type: ${typeof buffer}`);
+                    log(`✅ Buffer constructor: ${buffer.constructor.name}`);
+                    
+                    // Test Buffer.alloc
+                    const allocBuffer = Buffer.alloc(10);
+                    log(`✅ Buffer.alloc(10): length=${allocBuffer.length()}`);
+                    
+                    updateStatus('✅ Buffer working directly', 'success');
+                } else {
+                    log('❌ Buffer not available directly');
+                    updateStatus('❌ Buffer not available directly', 'error');
+                }
+            } catch (e) {
+                log(`❌ Buffer direct error: ${e.message}`);
+                updateStatus(`❌ Buffer direct error: ${e.message}`, 'error');
+            }
+        }
+
+        function testBufferImport() {
+            log('🧪 Testing Buffer import...');
+            
+            try {
+                // Try to import Buffer
+                import('buffer').then(({ Buffer }) => {
+                    log('✅ Buffer imported successfully');
+                    
+                    const testString = 'Hello World';
+                    const buffer = Buffer.from(testString, 'utf8');
+                    const backToString = buffer.toString('utf8');
+                    
+                    log(`✅ Buffer import: ${testString} -> ${backToString}`);
+                    log(`✅ Buffer length: ${buffer.length}`);
+                    log(`✅ Buffer type: ${typeof buffer}`);
+                    
+                    // Set global Buffer
+                    window.Buffer = Buffer;
+                    globalThis.Buffer = Buffer;
+                    log('✅ Buffer set globally');
+                    
+                    updateStatus('✅ Buffer imported and set globally', 'success');
+                }).catch(e => {
+                    log(`❌ Buffer import error: ${e.message}`);
+                    updateStatus(`❌ Buffer import error: ${e.message}`, 'error');
+                });
+            } catch (e) {
+                log(`❌ Buffer import error: ${e.message}`);
+                updateStatus(`❌ Buffer import error: ${e.message}`, 'error');
+            }
+        }
+
+        function testBufferRequire() {
+            log('🧪 Testing Buffer require...');
+            
+            try {
+                // Try to require Buffer (won't work in browser)
+                const { Buffer } = require('buffer');
+                log('✅ Buffer required successfully');
+                
+                const testString = 'Hello World';
+                const buffer = Buffer.from(testString, 'utf8');
+                const backToString = buffer.toString('utf8');
+                
+                log(`✅ Buffer require: ${testString} -> ${backToString}`);
+                log(`✅ Buffer length: ${buffer.length}`);
+                log(`✅ Buffer type: ${typeof buffer}`);
+                
+                updateStatus('✅ Buffer required successfully', 'success');
+            } catch (e) {
+                log(`❌ Buffer require error: ${e.message}`);
+                updateStatus(`❌ Buffer require error: ${e.message}`, 'error');
+            }
+        }
+
+        function clearLogs() {
+            document.getElementById('logs').innerHTML = '';
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('🚀 Buffer test page loaded');
+            log('🔍 Checking initial Buffer availability...');
+            
+            if (typeof window.Buffer !== 'undefined') {
+                log('✅ window.Buffer available');
+                log(`✅ window.Buffer type: ${typeof window.Buffer}`);
+                log(`✅ window.Buffer constructor: ${window.Buffer.name}`);
+            } else {
+                log('❌ window.Buffer not available');
+            }
+            
+            if (typeof globalThis.Buffer !== 'undefined') {
+                log('✅ globalThis.Buffer available');
+                log(`✅ globalThis.Buffer type: ${typeof globalThis.Buffer}`);
+            } else {
+                log('❌ globalThis.Buffer not available');
+            }
+            
+            if (typeof Buffer !== 'undefined') {
+                log('✅ Buffer available globally');
+                log(`✅ Buffer type: ${typeof Buffer}`);
+                log(`✅ Buffer constructor: ${Buffer.name}`);
+            } else {
+                log('❌ Buffer not available globally');
+            }
+            
+            // Test inline polyfill
+            if (typeof window.Buffer !== 'undefined') {
+                try {
+                    const testString = 'Test String';
+                    const buffer = window.Buffer.from(testString, 'utf8');
+                    const backToString = buffer.toString('utf8');
+                    log(`✅ Inline Buffer test: ${testString} -> ${backToString}`);
+                } catch (e) {
+                    log(`❌ Inline Buffer test error: ${e.message}`);
+                }
+            }
+        };
+    </script>
+</body>
+</html>

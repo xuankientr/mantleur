@@ -17,6 +17,16 @@ services:
         generateValue: true
       - key: CORS_ORIGIN
         value: https://mantleur-frontend.onrender.com
+      - key: VNP_TMN_CODE
+        value: 7DZ9914S
+      - key: VNP_HASH_SECRET
+        value: 2R7SDKR0VZ7ERVSK6TWM51F5T0CDBRO2
+      - key: VNP_URL
+        value: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+      - key: VNP_RETURN_URL
+        value: https://mantleur-backend.onrender.com/api/payments/return
+      - key: FRONTEND_URL
+        value: https://mantleur-frontend.onrender.com
     healthCheckPath: /api/health
 
   # Frontend Static Site
@@ -33,6 +43,23 @@ databases:
   # PostgreSQL Database
   - name: mantleur-db
     plan: starter
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -12,6 +12,8 @@
   body {
     @apply bg-gradient-to-br from-slate-50 to-blue-50 text-slate-900;
     font-feature-settings: "rlig" 1, "calt" 1;
+    color: #1f2937;
+    font-weight: 400;
   }
 
   html {
@@ -46,7 +48,7 @@
   }
 
   .btn-md {
-    @apply px-4 py-2 text-sm;
+    @apply px-5 py-2.5 text-sm;
   }
 
   .btn-lg {
@@ -68,7 +70,9 @@
   
   /* Modern Input Styles */
   .input {
-    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200;
+    @apply w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-gray-900 placeholder:text-slate-500 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all duration-200;
+    color: #111827 !important;
+    font-weight: 500;
   }
 
   .input-error {
@@ -98,7 +102,7 @@
 
   /* Modern Navigation */
   .nav-link {
-    @apply flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200;
+    @apply flex items-center space-x-3 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200;
   }
 
   .nav-link-active {
@@ -263,7 +267,7 @@
   }
 
   .grid-streams {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6;
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-8;
   }
 
   /* Modern Layout */
@@ -272,7 +276,7 @@
   }
 
   .section-padding {
-    @apply py-12 sm:py-16 lg:py-20;
+    @apply py-16 sm:py-20 lg:py-24;
   }
 
   /* Modern Hero Section */
@@ -306,23 +310,79 @@
   }
 
   .footer-content {
-    @apply container-modern grid grid-cols-1 md:grid-cols-4 gap-8;
+    @apply container-modern grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-12;
   }
 
   .footer-section {
-    @apply space-y-4;
+    @apply space-y-5;
   }
 
   .footer-title {
-    @apply text-lg font-semibold mb-4;
+    @apply text-lg font-semibold mb-5;
   }
 
   .footer-link {
-    @apply text-slate-300 hover:text-white transition-colors duration-200;
+    @apply block text-slate-700 hover:text-slate-900 transition-colors duration-200 py-1.5;
   }
 }
 
 @layer utilities {
+  /* Animated gradient blobs for subtle 3D-like hero background */
+  .hero-3d {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero-3d .blob {
+    position: absolute;
+    width: 64rem; /* 1024px */
+    height: 64rem;
+    border-radius: 9999px;
+    filter: blur(70px);
+    opacity: 0.5;
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    animation: blobFloat 18s ease-in-out infinite alternate;
+  }
+
+  .hero-3d .blob-1 {
+    left: -10%;
+    top: -20%;
+    background: radial-gradient(closest-side, rgba(37,99,235,0.75), rgba(37,99,235,0) 72%);
+    animation-delay: 0s;
+  }
+
+  .hero-3d .blob-2 {
+    right: -15%;
+    top: -10%;
+    background: radial-gradient(closest-side, rgba(79,70,229,0.7), rgba(79,70,229,0) 72%);
+    animation-delay: 3s;
+  }
+
+  .hero-3d .blob-3 {
+    left: 20%;
+    bottom: -25%;
+    background: radial-gradient(closest-side, rgba(2,132,199,0.65), rgba(2,132,199,0) 72%);
+    animation-delay: 6s;
+  }
+
+  @keyframes blobFloat {
+    0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0.25; }
+    50% { transform: translate3d(2rem, -1rem, 0) scale(1.05); opacity: 0.3; }
+    100% { transform: translate3d(-2rem, 1rem, 0) scale(0.98); opacity: 0.22; }
+  }
+
+  @keyframes marquee {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .marquee-animation {
+    animation: marquee 18s linear infinite;
+  }
+
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;

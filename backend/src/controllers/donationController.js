@@ -46,7 +46,7 @@ const createDonation = async (req, res) => {
       });
 
       // Cộng coin cho streamer
-      await tx.user.update({
+      const updatedStreamer = await tx.user.update({
         where: { id: stream.streamerId },
         data: {
           coinBalance: {
@@ -81,7 +81,7 @@ const createDonation = async (req, res) => {
         }
       });
 
-      return { donation, updatedDonor };
+      return { donation, updatedDonor, updatedStreamer };
     });
 
     // Emit realtime events to stream room
@@ -97,11 +97,23 @@ const createDonation = async (req, res) => {
           stream: result.donation.stream,
           createdAt: new Date().toISOString()
         });
-        // Update balances for donor/streamer (client-side can refresh)
-        io.to(room).emit('donation-balance-update', {
-          donorId,
-          streamerId: stream.streamerId,
-          amount
+        // Realtime notify to streamer personal room
+        io.to(`user-${stream.streamerId}`).emit('notification', {
+          type: 'donation',
+          streamId,
+          amount: result.donation.amount,
+          message: result.donation.message,
+          donor: result.donation.donor,
+          createdAt: new Date().toISOString()
+        });
+        // Realtime coin balance updates to both donor and streamer
+        io.to(`user-${donorId}`).emit('coin-balance-update', {
+          userId: donorId,
+          balance: result.updatedDonor.coinBalance
+        });
+        io.to(`user-${stream.streamerId}`).emit('coin-balance-update', {
+          userId: stream.streamerId,
+          balance: result.updatedStreamer.coinBalance
         });
       }
     } catch (e) {

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Payment Functions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Test Payment Functions</h1>
+        <p>Test nạp/rút USDC trên Solana</p>
+        
+        <div class="test-section info">
+            <h3>📊 Status</h3>
+            <div id="status">Checking...</div>
+        </div>
+        
+        <div class="test-section">
+            <h3>💳 Test Nạp USDC</h3>
+            <input type="number" id="topupAmount" placeholder="USDC Amount" value="10" step="0.01">
+            <button onclick="testTopUp()">Test Top Up</button>
+            <div id="topupResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>💸 Test Rút USDC</h3>
+            <input type="number" id="withdrawAmount" placeholder="Coins Amount" value="100" step="1">
+            <button onclick="testWithdraw()">Test Withdraw</button>
+            <div id="withdrawResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>🔗 Test Wallet Connection</h3>
+            <button onclick="testWalletConnection()">Test Wallet</button>
+            <div id="walletResult" class="result"></div>
+        </div>
+        
+        <div class="test-section">
+            <h3>📝 Logs</h3>
+            <div id="logs" style="background: #f8f9fa; padding: 10px; border-radius: 3px; max-height: 200px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const time = new Date().toLocaleTimeString();
+            logs.innerHTML += `[${time}] ${message}<br>`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = `result ${type}`;
+        }
+
+        function updateResult(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.innerHTML = message;
+            element.className = `result ${type}`;
+        }
+
+        // Test wallet connection
+        function testWalletConnection() {
+            log('🔍 Testing wallet connection...');
+            
+            try {
+                if (typeof window.solana !== 'undefined') {
+                    log('✅ Phantom wallet detected');
+                    updateResult('walletResult', '✅ Phantom wallet available', 'success');
+                    updateStatus('✅ Wallet ready', 'success');
+                } else {
+                    log('❌ Phantom wallet not found');
+                    updateResult('walletResult', '❌ Phantom wallet not found. Please install Phantom wallet.', 'error');
+                    updateStatus('❌ Wallet not available', 'error');
+                }
+            } catch (error) {
+                log('❌ Error checking wallet: ' + error.message);
+                updateResult('walletResult', '❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        // Test top up function
+        async function testTopUp() {
+            const amount = document.getElementById('topupAmount').value;
+            log(`💳 Testing top up with ${amount} USDC...`);
+            
+            try {
+                // Simulate API call
+                const response = await fetch('http://localhost:5000/api/users/add-coins', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer test-token'
+                    },
+                    body: JSON.stringify({
+                        amount: parseInt(amount) * 100, // 1 USDC = 100 coins
+                        txHash: `mock_${Date.now()}`
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Top up successful: ${data.newBalance} coins`);
+                    updateResult('topupResult', `✅ Success! New balance: ${data.newBalance} coins`, 'success');
+                } else {
+                    const error = await response.text();
+                    log(`❌ Top up failed: ${error}`);
+                    updateResult('topupResult', `❌ Failed: ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Top up error: ${error.message}`);
+                updateResult('topupResult', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Test withdraw function
+        async function testWithdraw() {
+            const amount = document.getElementById('withdrawAmount').value;
+            log(`💸 Testing withdraw with ${amount} coins...`);
+            
+            try {
+                // Simulate API call
+                const response = await fetch('http://localhost:5000/api/users/deduct-coins', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer test-token'
+                    },
+                    body: JSON.stringify({
+                        amount: parseInt(amount),
+                        txHash: `mock_withdraw_${Date.now()}`
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log(`✅ Withdraw successful: ${data.newBalance} coins remaining`);
+                    updateResult('withdrawResult', `✅ Success! Remaining balance: ${data.newBalance} coins`, 'success');
+                } else {
+                    const error = await response.text();
+                    log(`❌ Withdraw failed: ${error}`);
+                    updateResult('withdrawResult', `❌ Failed: ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Withdraw error: ${error.message}`);
+                updateResult('withdrawResult', `❌ Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        window.onload = function() {
+            log('🚀 Test page loaded');
+            testWalletConnection();
+        };
+    </script>
+</body>
+</html>
+
+

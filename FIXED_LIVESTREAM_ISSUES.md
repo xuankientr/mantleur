@@ -138,3 +138,41 @@ Sau khi test thành công:
 **🎉 Nếu tất cả test cases pass, livestream đã hoạt động hoàn hảo!**
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

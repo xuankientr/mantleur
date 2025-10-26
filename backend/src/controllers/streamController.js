@@ -4,14 +4,29 @@ const { v4: uuidv4 } = require('uuid');
 // Lấy danh sách streams đang live
 const getStreams = async (req, res) => {
   try {
-    const { category, limit = 20, offset = 0 } = req.query;
+    const { category, q, limit = 20, offset = 0, isLive } = req.query;
 
-    const where = {
-      isLive: true
-    };
+    const where = {};
 
     if (category) {
       where.category = category;
+    }
+
+    if (q && q.trim().length > 0) {
+      where.OR = [
+        { title: { contains: q } },
+        { description: { contains: q } },
+        { category: { contains: q } },
+        { streamer: { is: { username: { contains: q } } } }
+      ];
+    }
+
+    // Mặc định chỉ lấy stream đang live nếu không có tham số q và không truyền isLive
+    if (typeof isLive !== 'undefined') {
+      if (isLive === 'true') where.isLive = true;
+      else if (isLive === 'false') where.isLive = false;
+    } else if (!q) {
+      where.isLive = true;
     }
 
     const streams = await prisma.stream.findMany({
@@ -143,6 +158,29 @@ const updateStream = async (req, res) => {
         }
       }
     });
+
+    // Nếu isLive chuyển từ false -> true: thông báo tới follower
+    if (isLive === true) {
+      try {
+        const io = req.app.get('io');
+        // Lấy danh sách follower của streamer
+        const follows = await prisma.follow.findMany({
+          where: { streamerId: stream.streamerId },
+          select: { followerId: true },
+        });
+        // Phát sự kiện theo từng user room
+        follows.forEach(f => {
+          io.to(`user-${f.followerId}`).emit('streamer_live', {
+            streamerId: stream.streamerId,
+            streamId: stream.id,
+            title: stream.title,
+            category: stream.category,
+          });
+        });
+      } catch (notifyErr) {
+        console.error('notify followers error:', notifyErr);
+      }
+    }
 
     res.json({
       message: 'Stream updated successfully',

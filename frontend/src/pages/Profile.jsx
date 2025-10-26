@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { userAPI, donationAPI } from '../utils/api';
+import { userAPI, donationAPI, followAPI } from '../utils/api';
+import PaymentModal from '../components/PaymentModal';
 import { 
   User, 
   Mail, 
@@ -17,6 +18,7 @@ const Profile = () => {
   const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [donations, setDonations] = useState([]);
   const [receivedDonations, setReceivedDonations] = useState([]);
   const [stats, setStats] = useState({
@@ -24,6 +26,7 @@ const Profile = () => {
     totalReceived: 0,
     totalStreams: 0,
   });
+  const [followings, setFollowings] = useState([]);
 
   const [editData, setEditData] = useState({
     username: user?.username || '',
@@ -34,6 +37,7 @@ const Profile = () => {
     if (user) {
       fetchDonations();
       fetchStats();
+      fetchFollowings();
     }
   }, [user]);
 
@@ -106,6 +110,15 @@ const Profile = () => {
     setIsEditing(false);
   };
 
+  const fetchFollowings = async () => {
+    try {
+      const r = await followAPI.listFollowings();
+      setFollowings(Array.isArray(r.data?.followings) ? r.data.followings : []);
+    } catch (e) {
+      setFollowings([]);
+    }
+  };
+
   if (!user) {
     return (
       <div className="text-center py-12">
@@ -142,13 +155,21 @@ const Profile = () => {
             </div>
           </div>
           
-          <button
-            onClick={handleEdit}
-            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
-          >
-            <Edit3 className="w-4 h-4 mr-2" />
-            Chỉnh sửa
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              className="btn btn-primary btn-md"
+            >
+              Nạp/Rút coin
+            </button>
+            <button
+              onClick={handleEdit}
+              className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 flex items-center"
+            >
+              <Edit3 className="w-4 h-4 mr-2" />
+              Chỉnh sửa
+            </button>
+          </div>
         </div>
       </div>
 
@@ -164,25 +185,27 @@ const Profile = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Tên người dùng
               </label>
-              <input
-                type="text"
-                value={editData.username}
-                onChange={(e) => setEditData({ ...editData, username: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+                <input
+                  type="text"
+                  value={editData.username}
+                  onChange={(e) => setEditData({ ...editData, username: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 font-medium"
+                  style={{ color: '#111827', fontWeight: '500' }}
+                />
             </div>
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Avatar URL
               </label>
-              <input
-                type="url"
-                value={editData.avatar}
-                onChange={(e) => setEditData({ ...editData, avatar: e.target.value })}
-                placeholder="https://example.com/avatar.jpg"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
+                <input
+                  type="url"
+                  value={editData.avatar}
+                  onChange={(e) => setEditData({ ...editData, avatar: e.target.value })}
+                  placeholder="https://example.com/avatar.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 text-gray-900 font-medium"
+                  style={{ color: '#111827', fontWeight: '500' }}
+                />
             </div>
             
             <div className="flex space-x-3">
@@ -319,11 +342,65 @@ const Profile = () => {
           </div>
         </div>
       </div>
+
+      {/* Followings */}
+      <div className="mt-6 bg-white rounded-lg shadow-sm">
+        <div className="p-6 border-b">
+          <h3 className="text-lg font-semibold text-gray-900">Đang theo dõi</h3>
+        </div>
+        <div className="p-6">
+          {followings.length === 0 ? (
+            <p className="text-gray-500 text-center py-4">Bạn chưa theo dõi streamer nào</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {followings.map((s) => (
+                <div key={s.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-md">
+                  <div className="flex items-center">
+                    <img
+                      src={s.avatar || `https://ui-avatars.com/api/?name=${s.username}&background=3b82f6&color=fff`}
+                      alt={s.username}
+                      className="w-10 h-10 rounded-full"
+                    />
+                    <div className="ml-3">
+                      <p className="font-medium text-gray-900">{s.username}</p>
+                      <p className="text-xs text-gray-600">Streamer</p>
+                    </div>
+                  </div>
+                  <a href={`/streamer/${s.id}`} className="text-sm text-blue-600 hover:underline">Xem kênh</a>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Payment Modal */}
+      <PaymentModal 
+        isOpen={showPaymentModal} 
+        onClose={() => setShowPaymentModal(false)} 
+      />
     </div>
   );
 };
 
 export default Profile;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

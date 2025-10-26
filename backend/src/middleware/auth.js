@@ -30,6 +30,7 @@ const authenticateToken = async (req, res, next) => {
     }
 
     req.user = user;
+    req.userId = user.id;
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -71,6 +72,23 @@ module.exports = {
   authenticateToken,
   requireStreamer
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

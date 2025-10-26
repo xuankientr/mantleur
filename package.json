@@ -18,11 +18,13 @@
     "autopush": "node scripts/autopush.js"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
     "chokidar": "^3.6.0",
+    "concurrently": "^8.2.2",
     "simple-git": "^3.27.0"
+  },
+  "dependencies": {
+    "@metamask/detect-provider": "^2.0.0",
+    "ethers": "^6.15.0",
+    "web3": "^4.16.0"
   }
 }
-
-
-
