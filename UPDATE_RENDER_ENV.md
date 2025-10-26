@@ -3,9 +3,22 @@
 ## 🎯 Chỉ cần cập nhật 2 biến này trên Render:
 
 ### 1. DATABASE_URL
+
+**Connection string mới từ Supabase Dashboard:**
+
+Cách lấy:
+1. Vào https://supabase.com/dashboard
+2. Chọn project của bạn
+3. Settings → Database
+4. Copy "Connection Pooling" connection string
+5. Sẽ có dạng: `postgresql://postgres.xgbylmnkwqzsacszkpkt:[PASSWORD]@aws-1-us-east-1.pooler.supabase.com:6543/postgres`
+
+**HOẶC dùng Non-pooling URL:**
 ```env
 postgresql://postgres.xgbylmnkwqzsacszkpkt:KP7FsNR2FO5XAyPQ@aws-1-us-east-1.pooler.supabase.com:5432/postgres?sslmode=require
 ```
+
+**Lưu ý:** Port `6543` là pooling, port `5432` là direct connection
 
 ### 2. JWT_SECRET  
 ```env
