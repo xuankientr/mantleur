@@ -180,7 +180,7 @@ export const SolanaProvider = ({ children }) => {
         throw new Error('No authentication token found');
       }
 
-      const response = await fetch('http://localhost:5000/api/users/add-coins', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/add-coins`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -258,7 +258,7 @@ export const SolanaProvider = ({ children }) => {
         throw new Error('No authentication token found');
       }
       
-      const response = await fetch('http://localhost:5000/api/users/deduct-coins', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/deduct-coins`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -311,7 +311,7 @@ export const SolanaProvider = ({ children }) => {
           throw new Error('No authentication token found');
         }
         
-        const response = await fetch('http://localhost:5000/api/users/add-coins', {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/add-coins`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

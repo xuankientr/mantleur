@@ -20,7 +20,7 @@ const AdminWithdrawals = () => {
   const fetchWithdrawals = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('http://localhost:5000/api/withdrawals', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/withdrawals`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -40,7 +40,7 @@ const AdminWithdrawals = () => {
   const updateWithdrawalStatus = async (id, status, adminNote = '') => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/withdrawals/${id}/status`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/withdrawals/${id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

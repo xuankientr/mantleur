@@ -90,7 +90,7 @@ export const PaymentProvider = ({ children }) => {
       }
 
       // Call backend API to create payment
-      const response = await fetch('http://localhost:5000/api/payments/create', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/payments/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -142,7 +142,7 @@ export const PaymentProvider = ({ children }) => {
       }
 
       // Call backend API to request withdrawal
-      const response = await fetch('http://localhost:5000/api/withdrawals', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/withdrawals`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -195,7 +195,7 @@ export const PaymentProvider = ({ children }) => {
         // Update user balance in database
         const token = localStorage.getItem('token');
         if (token) {
-          const response = await fetch('http://localhost:5000/api/users/add-coins', {
+          const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/users/add-coins`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
